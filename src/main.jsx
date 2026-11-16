@@ -61,7 +61,24 @@ function RoomCanvas({design,onSelect,orbitTick}){
    else if(i.type==='Side table'){box(g,.9,.12,.9,c,0,.52,0);let leg=new THREE.Mesh(new THREE.CylinderGeometry(.29,.35,.42,32),mat('#795b42'));leg.position.y=.25;g.add(leg)}
    else if(i.type==='Woven rug'){const rug=new THREE.Mesh(new THREE.BoxGeometry(4.8,.055,3.4),mat(c,1));rug.position.y=.035;g.add(rug);for(let z=-1.5;z<=1.5;z+=.17)box(g,4.6,.008,.018,'#e4d3bb',0,.067,z)}
    else if(i.type==='Floor lamp'){const stem=new THREE.Mesh(new THREE.CylinderGeometry(.035,.055,3.65,20),mat('#b8945e'));stem.position.y=1.88;g.add(stem);const foot=new THREE.Mesh(new THREE.CylinderGeometry(.3,.34,.12,32),mat('#8a694c'));foot.position.y=.06;g.add(foot);const shade=new THREE.Mesh(new THREE.CylinderGeometry(.3,.46,.52,32,1,true),new THREE.MeshStandardMaterial({color:'#f2e7d2',side:THREE.DoubleSide}));shade.position.y=3.72;g.add(shade);const bulb=new THREE.PointLight('#ffe1a8',8,6);bulb.position.y=3.52;g.add(bulb)}
-   else if(i.type==='Olive tree'){const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.055,.1,2.25,14),mat('#755a42'));trunk.position.y=1.42;g.add(trunk);for(let n=0;n<24;n++){const a=n*2.399,r=.38+(n%5)*.12,leaf=new THREE.Mesh(new THREE.SphereGeometry(.34,14,12),mat(n%3?'#61765a':'#7d8b62'));leaf.scale.set(.72,1.08,.68);leaf.position.set(Math.cos(a)*r,2.45+(n%6)*.27,Math.sin(a)*r);g.add(leaf)}const pot=new THREE.Mesh(new THREE.CylinderGeometry(.36,.27,.6,28),mat('#c9b39b'));pot.position.y=.31;g.add(pot)}
+   else if(i.type==='Olive tree'){
+    const bark=mat('#755a42'),leafMats=['#62785a','#71855e','#87926a'].map(color=>mat(color));
+    const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.055,.105,2.65,14),bark);trunk.position.y=1.62;g.add(trunk);
+    const up=new THREE.Vector3(0,1,0);
+    for(let n=0;n<7;n++){
+      const a=n*2.399,startY=1.82+(n%3)*.34,len=.82+(n%2)*.16;
+      const dir=new THREE.Vector3(Math.cos(a)*.78,.55+(n%2)*.12,Math.sin(a)*.78).normalize();
+      const branch=new THREE.Mesh(new THREE.CylinderGeometry(.018,.042,len,9),bark);
+      branch.position.set(Math.cos(a)*.16,startY+dir.y*len*.5,Math.sin(a)*.16);branch.quaternion.setFromUnitVectors(up,dir);g.add(branch);
+      for(let k=0;k<5;k++){
+        const t=.34+k*.14,side=k%2?1:-1;
+        const leaf=new THREE.Mesh(new THREE.SphereGeometry(.18,10,8),leafMats[(n+k)%leafMats.length]);
+        leaf.scale.set(.78,.28,.2);leaf.rotation.set(.25+((n+k)%3)*.22,a+side*.5,.3*side);
+        leaf.position.set(Math.cos(a)*(.18+dir.x*len*t)+Math.cos(a+side)*.13,startY+dir.y*len*t+((k%3)-1)*.08,Math.sin(a)*(.18+dir.z*len*t)+Math.sin(a+side)*.13);g.add(leaf);
+      }
+    }
+    const pot=new THREE.Mesh(new THREE.CylinderGeometry(.36,.27,.6,28),mat('#c9b39b'));pot.position.y=.31;g.add(pot)
+   }
    else if(i.type==='Abstract art'){box(g,1.72,1.27,.11,'#8d674e',0,1.75,0);box(g,1.54,1.09,.025,'#f2e7d8',0,1.75,.07);let art=box(g,.76,.67,.03,c,-.16,1.78,.09);art.rotation.z=-.24;let art2=box(g,.42,.48,.035,'#617066',.36,1.8,.1);art2.rotation.z=.38}
    else if(i.type==='Arched mirror'){box(g,1.22,2.06,.1,'#a98a6a',0,1.08,0);let m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),mat('#c5d4d4',.16));m.scale.set(.9,1.75,.02);m.position.set(0,1.1,.08);g.add(m)}
    else{let v=new THREE.Mesh(new THREE.CylinderGeometry(.15,.22,.55,28),mat(c));v.position.y=.28;g.add(v);let top=new THREE.Mesh(new THREE.CylinderGeometry(.1,.14,.18,24),mat(c));top.position.y=.62;g.add(top)}
