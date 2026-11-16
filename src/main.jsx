@@ -32,14 +32,36 @@ function RoomCanvas({design,onSelect,orbitTick}){
  useEffect(()=>{const c=sceneRef.current?.controls;if(!c)return;c.autoRotate=true;c.autoRotateSpeed=1.2;const t=setTimeout(()=>c.autoRotate=false,1200);return()=>clearTimeout(t)},[orbitTick]);
  useEffect(()=>{const s=sceneRef.current;if(!s)return;for(const g of meshes.current.values())s.scene.remove(g);meshes.current.clear();const mat=(c,r=.8)=>new THREE.MeshStandardMaterial({color:c,roughness:r});const box=(g,w,h,d,c,x,y,z)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;g.add(o);return o};
   design.items.forEach(i=>{const g=new THREE.Group();g.position.set(i.x,0,i.z);g.rotation.y=i.rotation||0;g.scale.setScalar(i.scale||1);g.userData.itemId=i.id;let c=i.color;
-   if(i.type==='Bed'){box(g,3.15,.32,4.05,'#6f5140',0,.28,0);box(g,3.12,.3,3.65,c,0,.54,.05);box(g,3.2,.33,1.3,'#f5efe5',0,.78,-1.1);box(g,3.25,.68,.16,'#795c48',0,.65,-2.03);for(const x of [-.95,.95]){box(g,.95,.2,.75,'#f9f5ee',x,.86,-1.25);box(g,.7,.08,.64,'#d8c7b4',x,.98,-1.25)}}
+   if(i.type==='Bed'){
+    const wood=mat('#765a46'),linen=mat('#f4eee5'),duvet=mat(c),pillow=mat('#fbf8f2'),piping=mat('#e5dbcf');
+    const bedBox=(w,h,d,m,x,y,z)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;g.add(o);return o};
+    // A lower, upholstered platform with visible feet and a substantial headboard.
+    bedBox(3.02,.28,3.95,wood,0,.3,0);
+    for(const x of [-1.3,1.3])for(const z of [-1.68,1.68]){const foot=new THREE.Mesh(new THREE.CylinderGeometry(.075,.09,.3,16),wood);foot.position.set(x,.15,z);foot.castShadow=true;g.add(foot)}
+    bedBox(3.08,.3,3.72,linen,0,.58,0);
+    // Soft duvet over the lower half, with a folded top edge and subtle stitched seams.
+    bedBox(3.1,.22,2.45,duvet,0,.82,.62);
+    bedBox(3.1,.12,.22,linen,0,.94,-.58);
+    for(const x of [-1.12,-.56,0,.56,1.12])bedBox(.018,.012,2.1,piping,x,.936,.68);
+    // Full-size, softly rounded pillows, each with a sewn border and gentle loft.
+    for(const x of [-.78,.78]){
+      const pillowShape=new THREE.Shape();pillowShape.moveTo(-.53,-.32);pillowShape.quadraticCurveTo(-.58,0,-.53,.32);pillowShape.quadraticCurveTo(0,.38,.53,.32);pillowShape.quadraticCurveTo(.58,0,.53,-.32);pillowShape.quadraticCurveTo(0,-.38,-.53,-.32);
+      const pillowGeo=new THREE.ExtrudeGeometry(pillowShape,{depth:.14,bevelEnabled:true,bevelSegments:3,steps:1,bevelSize:.055,bevelThickness:.055,curveSegments:8});pillowGeo.rotateX(-Math.PI/2);
+      const p=new THREE.Mesh(pillowGeo,pillow);p.position.set(x,.91,-1.37);p.castShadow=true;p.receiveShadow=true;g.add(p);
+      bedBox(.012,.012,.58,piping,x+.48,1.015,-1.36);
+    }
+    // Paneled headboard with a warm timber frame.
+    bedBox(3.24,1.02,.18,wood,0,.88,-1.96);
+    bedBox(2.98,.77,.055,mat('#9a7b63'),0,.89,-1.855);
+    for(const x of [-.98,0,.98])bedBox(.025,.7,.025,wood,x,.89,-1.815);
+   }
    else if(i.type==='Sofa'){box(g,3.15,.68,1.28,c,0,.48,0);box(g,3.12,.7,.3,c,0,1.02,-.48);for(const x of [-1.42,1.42])box(g,.34,.72,1.34,c,x,.68,0)}
    else if(i.type==='Desk'){box(g,2.65,.14,1.25,c,0,.75,0);for(const x of [-1.1,1.1])for(const z of [-.45,.45])box(g,.1,.72,.1,'#73563f',x,.36,z);box(g,.75,.08,.56,'#3d4341',0,.91,-.16)}
    else if(i.type==='Chair'){box(g,.92,.16,.88,c,0,.58,0);box(g,.9,.83,.13,c,0,1.02,-.38);for(const x of [-.36,.36])for(const z of [-.31,.31])box(g,.09,.56,.09,'#614936',x,.29,z)}
    else if(i.type==='Side table'){box(g,.9,.12,.9,c,0,.52,0);let leg=new THREE.Mesh(new THREE.CylinderGeometry(.29,.35,.42,32),mat('#795b42'));leg.position.y=.25;g.add(leg)}
    else if(i.type==='Woven rug'){const rug=new THREE.Mesh(new THREE.BoxGeometry(4.8,.055,3.4),mat(c,1));rug.position.y=.035;g.add(rug);for(let z=-1.5;z<=1.5;z+=.17)box(g,4.6,.008,.018,'#e4d3bb',0,.067,z)}
-   else if(i.type==='Floor lamp'){let stem=new THREE.Mesh(new THREE.CylinderGeometry(.035,.055,1.62,18),mat('#b8945e'));stem.position.y=.86;g.add(stem);let shade=new THREE.Mesh(new THREE.CylinderGeometry(.28,.43,.46,32,1,true),new THREE.MeshStandardMaterial({color:'#f2e7d2',side:THREE.DoubleSide}));shade.position.y=1.82;g.add(shade);let bulb=new THREE.PointLight('#ffe1a8',8,5);bulb.position.y=1.68;g.add(bulb);let foot=new THREE.Mesh(new THREE.CylinderGeometry(.28,.3,.1,30),mat('#8a694c'));foot.position.y=.05;g.add(foot)}
-   else if(i.type==='Olive tree'){let trunk=new THREE.Mesh(new THREE.CylinderGeometry(.06,.11,1.12,12),mat('#755a42'));trunk.position.y=.8;g.add(trunk);for(let n=0;n<14;n++){let a=n*2.399,r=.3+(n%4)*.12,leaf=new THREE.Mesh(new THREE.SphereGeometry(.3,12,10),mat(n%3?'#61765a':'#7d8b62'));leaf.scale.set(.72,1.15,.65);leaf.position.set(Math.cos(a)*r,1.36+(n%5)*.14,Math.sin(a)*r);g.add(leaf)}let pot=new THREE.Mesh(new THREE.CylinderGeometry(.34,.25,.55,24),mat('#c9b39b'));pot.position.y=.29;g.add(pot)}
+   else if(i.type==='Floor lamp'){const stem=new THREE.Mesh(new THREE.CylinderGeometry(.035,.055,3.65,20),mat('#b8945e'));stem.position.y=1.88;g.add(stem);const foot=new THREE.Mesh(new THREE.CylinderGeometry(.3,.34,.12,32),mat('#8a694c'));foot.position.y=.06;g.add(foot);const shade=new THREE.Mesh(new THREE.CylinderGeometry(.3,.46,.52,32,1,true),new THREE.MeshStandardMaterial({color:'#f2e7d2',side:THREE.DoubleSide}));shade.position.y=3.72;g.add(shade);const bulb=new THREE.PointLight('#ffe1a8',8,6);bulb.position.y=3.52;g.add(bulb)}
+   else if(i.type==='Olive tree'){const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.055,.1,2.25,14),mat('#755a42'));trunk.position.y=1.42;g.add(trunk);for(let n=0;n<24;n++){const a=n*2.399,r=.38+(n%5)*.12,leaf=new THREE.Mesh(new THREE.SphereGeometry(.34,14,12),mat(n%3?'#61765a':'#7d8b62'));leaf.scale.set(.72,1.08,.68);leaf.position.set(Math.cos(a)*r,2.45+(n%6)*.27,Math.sin(a)*r);g.add(leaf)}const pot=new THREE.Mesh(new THREE.CylinderGeometry(.36,.27,.6,28),mat('#c9b39b'));pot.position.y=.31;g.add(pot)}
    else if(i.type==='Abstract art'){box(g,1.72,1.27,.11,'#8d674e',0,1.75,0);box(g,1.54,1.09,.025,'#f2e7d8',0,1.75,.07);let art=box(g,.76,.67,.03,c,-.16,1.78,.09);art.rotation.z=-.24;let art2=box(g,.42,.48,.035,'#617066',.36,1.8,.1);art2.rotation.z=.38}
    else if(i.type==='Arched mirror'){box(g,1.22,2.06,.1,'#a98a6a',0,1.08,0);let m=new THREE.Mesh(new THREE.BoxGeometry(1,1,1),mat('#c5d4d4',.16));m.scale.set(.9,1.75,.02);m.position.set(0,1.1,.08);g.add(m)}
    else{let v=new THREE.Mesh(new THREE.CylinderGeometry(.15,.22,.55,28),mat(c));v.position.y=.28;g.add(v);let top=new THREE.Mesh(new THREE.CylinderGeometry(.1,.14,.18,24),mat(c));top.position.y=.62;g.add(top)}
