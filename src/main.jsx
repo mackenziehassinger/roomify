@@ -44,8 +44,13 @@ function RoomCanvas({design,onSelect,orbitTick}){
  useEffect(()=>{const room=sceneRef.current?.room;if(!room)return;const night=design.lighting==='Night';room.userData.ambient.intensity=night?1.05:2;room.userData.keyLight.intensity=night?2.5:4;room.userData.keyLight.color.set(night?'#ffd49a':'#fff1db');sceneRef.current.scene.background.set(night?'#d9d4ce':'#ebe7df')},[design.lighting]);
  useEffect(()=>{const c=sceneRef.current?.controls;if(!c)return;c.autoRotate=true;c.autoRotateSpeed=1.2;const t=setTimeout(()=>c.autoRotate=false,1200);return()=>clearTimeout(t)},[orbitTick]);
  useEffect(()=>{const s=sceneRef.current;if(!s)return;for(const g of meshes.current.values())s.scene.remove(g);meshes.current.clear();const mat=(c,r=.8)=>new THREE.MeshStandardMaterial({color:c,roughness:r});const box=(g,w,h,d,c,x,y,z)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c));o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;g.add(o);return o};
-  design.items.forEach(i=>{const g=new THREE.Group();const mounted=i.mount==='wall',placement=mounted?wallPlacement(i,design.room):null;g.position.set(i.x,mounted?(i.type==='Abstract art'?(i.mountHeight??1.2)-1.3:(i.mountHeight??.45)):0,i.z);g.rotation.y=mounted?placement.yaw:(i.rotation||0);const baseSize=catalog.find(c=>c.type===i.type)?.size||[1,1,1],dimensions=i.dimensions||baseSize,overall=i.scale||1;g.scale.set(dimensions[0]/baseSize[0]*overall,dimensions[2]/baseSize[2]*overall,dimensions[1]/baseSize[1]*overall);g.userData.itemId=i.id;let c=i.color;
-   const soft=(w,h,d,color,x,y,z,r=.06,roughness=.88)=>{const mesh=new THREE.Mesh(new RoundedBoxGeometry(w,h,d,4,r),mat(color,roughness));mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);return mesh};
+ const makeFabricTexture=()=>{const canvas=document.createElement('canvas');canvas.width=canvas.height=512;const ctx=canvas.getContext('2d');ctx.fillStyle='#eee9e0';ctx.fillRect(0,0,512,512);for(let n=0;n<512;n+=3){const shade=n%6?'255,250,243':'136,124,108';ctx.fillStyle=`rgba(${shade},${n%6?.12:.07})`;ctx.fillRect(0,n,512,1);ctx.fillStyle=`rgba(${shade},${n%6?.1:.06})`;ctx.fillRect(n,0,1,512)}for(let n=0;n<2600;n++){ctx.fillStyle=n%2?'rgba(255,255,255,.12)':'rgba(110,97,80,.06)';ctx.fillRect(Math.random()*512,Math.random()*512,1,1)}const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.repeat.set(2,2);texture.anisotropy=8;return texture};
+ const makeWoodTexture=()=>{const canvas=document.createElement('canvas');canvas.width=512;canvas.height=256;const ctx=canvas.getContext('2d');ctx.fillStyle='#ab825b';ctx.fillRect(0,0,512,256);for(let n=0;n<190;n++){const y=Math.random()*256,alpha=.025+Math.random()*.075;ctx.strokeStyle=n%2?`rgba(69,43,24,${alpha})`:`rgba(255,231,194,${alpha})`;ctx.lineWidth=.5+Math.random()*2;ctx.beginPath();ctx.moveTo(0,y);ctx.bezierCurveTo(130,y+Math.random()*10-5,360,y+Math.random()*10-5,512,y+Math.random()*4-2);ctx.stroke()}const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.repeat.set(2,1);texture.anisotropy=8;return texture};
+ const fabricMap=makeFabricTexture(),woodMap=makeWoodTexture();
+ design.items.forEach(i=>{const g=new THREE.Group();const mounted=i.mount==='wall',placement=mounted?wallPlacement(i,design.room):null;g.position.set(i.x,mounted?(i.type==='Abstract art'?(i.mountHeight??1.2)-1.3:(i.mountHeight??.45)):0,i.z);g.rotation.y=mounted?placement.yaw:(i.rotation||0);const baseSize=catalog.find(c=>c.type===i.type)?.size||[1,1,1],dimensions=i.dimensions||baseSize,overall=i.scale||1;g.scale.set(dimensions[0]/baseSize[0]*overall,dimensions[2]/baseSize[2]*overall,dimensions[1]/baseSize[1]*overall);g.userData.itemId=i.id;let c=i.color;
+   const soft=(w,h,d,color,x,y,z,r=.06,roughness=.88)=>{const material=color?.isMaterial?color:(['Sofa','Chair'].includes(i.type)&&color===c?textile(c,.98):mat(color,roughness));const mesh=new THREE.Mesh(new RoundedBoxGeometry(w,h,d,4,r),material);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);return mesh};
+   const textile=(color,roughness=.98)=>new THREE.MeshStandardMaterial({color,map:fabricMap,roughness,bumpMap:fabricMap,bumpScale:.018});
+   const timberMaterial=(color,roughness=.68)=>new THREE.MeshStandardMaterial({color,map:woodMap,roughness});
    if(i.type==='Window'){
     const frame=mat('#f8f5ed',.42),trim=mat('#d8d2c8',.58),glass=new THREE.MeshPhysicalMaterial({color:'#b9d4d9',roughness:.12,metalness:.12,transparent:true,opacity:.68,clearcoat:1,clearcoatRoughness:.08,emissive:'#789fa5',emissiveIntensity:.13});
     const pane=new THREE.Mesh(new THREE.BoxGeometry(3.5,3.14,.035),glass);pane.position.set(0,1.75,.12);pane.receiveShadow=true;g.add(pane);
@@ -54,12 +59,9 @@ function RoomCanvas({design,onSelect,orbitTick}){
     box(g,.09,3.1,.17,'#e8e2d8',0,1.75,.15);box(g,3.55,.09,.17,'#e8e2d8',0,1.75,.15);
    }
    else if(i.type==='Bed'){
-   const walnut=mat('#936c4c',.64),oak=mat('#aa825b',.7),linen=mat('#f7f4ee',.98),duvet=mat('#eee9e0',.99),pillow=mat('#fffdf9',1);
-    // Fine woven fibers give the quilt and pillows a natural linen finish in the render.
-    const fabricCanvas=document.createElement('canvas');fabricCanvas.width=fabricCanvas.height=256;const fabricCtx=fabricCanvas.getContext('2d');fabricCtx.fillStyle='#f1ede5';fabricCtx.fillRect(0,0,256,256);
-    for(let n=0;n<256;n+=4){fabricCtx.fillStyle=n%8?'rgba(255,255,255,.19)':'rgba(142,128,110,.08)';fabricCtx.fillRect(0,n,256,1);fabricCtx.fillStyle=n%8?'rgba(255,255,255,.14)':'rgba(142,128,110,.07)';fabricCtx.fillRect(n,0,1,256)}
-    const fabricTexture=new THREE.CanvasTexture(fabricCanvas);fabricTexture.colorSpace=THREE.SRGBColorSpace;fabricTexture.wrapS=fabricTexture.wrapT=THREE.RepeatWrapping;fabricTexture.repeat.set(2,2);
-    const fabricMaterial=new THREE.MeshStandardMaterial({color:'#fff',map:fabricTexture,roughness:.99,bumpMap:fabricTexture,bumpScale:.012});
+   const walnut=timberMaterial('#936c4c',.68),oak=timberMaterial('#aa825b',.72),linen=mat('#f7f4ee',.98),duvet=mat('#eee9e0',.99),pillow=mat('#fffdf9',1);
+    // Shared high resolution fabric grain keeps the linen tactile at room scale.
+    const fabricMaterial=textile('#fff',.99);
     const cloth=(w,h,d,x,y,z,r=.08)=>{const mesh=new THREE.Mesh(new RoundedBoxGeometry(w,h,d,5,r),fabricMaterial);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);return mesh};
     const timber=(w,h,d,m,x,y,z)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;g.add(o);return o};
     // Warm oak platform, rounded upholstered mattress and soft layered bedding.
@@ -76,50 +78,50 @@ function RoomCanvas({design,onSelect,orbitTick}){
     for(const x of [-.98,0,.98])timber(.022,.72,.018,oak,x,.91,-1.824);
    }
    else if(i.type==='Sofa'){
-    const fabric=mat(c,.96),seam=mat('#c9bba8',1),legs=mat('#87694d',.62);
+    const fabric=textile(c,.98),seam=mat('#c9bba8',1),legs=timberMaterial('#87694d',.64);
     // Three tailored seats and back cushions, rolled soft arms, and tapered timber feet.
-    soft(3.06,.4,1.23,c,0,.43,0,.11,.95);
-    soft(3.02,.28,.34,c,0,.78,-.43,.09,.95);
-    for(const x of [-1.36,1.36])soft(.42,.67,1.25,c,x,.59,-.01,.13,.96);
+    soft(3.06,.4,1.23,fabric,0,.43,0,.11,.95);
+    soft(3.02,.28,.34,fabric,0,.78,-.43,.09,.95);
+    for(const x of [-1.36,1.36])soft(.42,.67,1.25,fabric,x,.59,-.01,.13,.96);
     for(const x of [-1.01,0,1.01]){
-      soft(.96,.18,.84,c,x,.69,.12,.075,.98);
-      const back=soft(.94,.66,.25,c,x,.98,-.45,.11,.98);back.rotation.x=-.07;
+      soft(.96,.18,.84,fabric,x,.69,.12,.075,.98);
+      const back=soft(.94,.66,.25,fabric,x,.98,-.45,.11,.98);back.rotation.x=-.07;
       soft(.018,.012,.68,'#e5dbcd',x,.79,.12,.008,1);
     }
     for(const x of [-1.28,1.28])for(const z of [-.48,.46]){const foot=new THREE.Mesh(new THREE.CylinderGeometry(.035,.065,.18,10),legs);foot.position.set(x,.09,z);g.add(foot)}
    }
    else if(i.type==='Desk'){
     const wood=mat(c,.62),darkWood=mat('#79583c',.65),knob=mat('#b69a72',.38);
-    soft(2.68,.13,1.28,c,0,.79,0,.035,.62);
+    soft(2.68,.13,1.28,wood,0,.79,0,.035,.62);
     // Two shallow drawers beneath the front edge, with small brass pulls.
-    for(const x of [-.62,.62]){soft(1.02,.22,.48,c,x,.61,.34,.025,.68);const pull=new THREE.Mesh(new THREE.SphereGeometry(.035,12,8),knob);pull.position.set(x,.61,.61);g.add(pull)}
-    for(const x of [-1.16,1.16])for(const z of [-.48,.48]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.045,.075,.72,10),darkWood);leg.position.set(x,.36,z);g.add(leg)}
+    for(const x of [-.62,.62]){soft(1.02,.22,.48,wood,x,.61,.34,.025,.68);const pull=new THREE.Mesh(new THREE.SphereGeometry(.035,12,8),knob);pull.position.set(x,.61,.61);g.add(pull)}
+    for(const x of [-1.16,1.16])for(const z of [-.48,.48]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.045,.075,.72,10),wood);leg.position.set(x,.36,z);g.add(leg)}
     for(const x of [-1.12,1.12]){const rail=new THREE.Mesh(new THREE.BoxGeometry(.055,.12,.96),wood);rail.position.set(x,.62,0);g.add(rail)}
    }
    else if(i.type==='Chair'){
-    const upholstery=mat(c,.96),wood=mat('#896748',.62);
-    soft(.82,.16,.78,c,0,.55,.02,.085,.98);
-    const back=soft(.82,.77,.15,c,0,1.0,-.31,.1,.98);back.rotation.x=-.1;
+    const upholstery=textile(c,.98),wood=timberMaterial('#896748',.66);
+    soft(.82,.16,.78,upholstery,0,.55,.02,.085,.98);
+    const back=soft(.82,.77,.15,upholstery,0,1.0,-.31,.1,.98);back.rotation.x=-.1;
     // Slender, slightly splayed legs and a subtle lower stretcher.
     for(const x of [-.32,.32])for(const z of [-.28,.29]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.035,.055,.53,10),wood);leg.position.set(x,.27,z);leg.rotation.z=x*.16;leg.rotation.x=z*.12;g.add(leg)}
     for(const x of [-.32,.32]){const rail=new THREE.Mesh(new THREE.CylinderGeometry(.022,.022,.56,8),wood);rail.rotation.z=Math.PI/2;rail.position.set(x,.26,0);g.add(rail)}
    }
    else if(i.type==='Side table'){
-    const wood=mat(c,.58),edge=mat('#9b744f',.62);
+    const wood=timberMaterial(c,.62),edge=timberMaterial('#9b744f',.66);
     const top=new THREE.Mesh(new THREE.CylinderGeometry(.47,.47,.11,48),wood);top.position.y=.66;g.add(top);
     const rim=new THREE.Mesh(new THREE.CylinderGeometry(.475,.475,.045,48),edge);rim.position.y=.59;g.add(rim);
     for(const x of [-.29,.29])for(const z of [-.29,.29]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.045,.065,.58,10),wood);leg.position.set(x,.3,z);g.add(leg)}
     for(const z of [-.29,.29]){const stretcher=new THREE.Mesh(new THREE.CylinderGeometry(.022,.022,.5,8),edge);stretcher.rotation.z=Math.PI/2;stretcher.position.set(0,.22,z);g.add(stretcher)}
    }
    else if(i.type==='Dresser'){
-    const shadowWood=mat('#77563d',.75),brass=mat('#b99a6f',.35);
-    soft(4.05,2.2,1.32,c,0,1.48,0,.08,.68);soft(4.18,.16,1.42,'#b78e66',0,2.66,0,.05,.65);
-    for(const x of [-1.15,0,1.15])for(const y of [1.02,1.92]){soft(1.08,.72,.055,'#b68e67',x,y,.69,.025,.72);const pull=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.12,12),brass);pull.rotation.x=Math.PI/2;pull.position.set(x,y,.75);g.add(pull)}
+    const shadowWood=timberMaterial('#77563d',.75),dresserWood=timberMaterial('#b68e67',.7),brass=mat('#b99a6f',.35);
+    soft(4.05,2.2,1.32,shadowWood,0,1.48,0,.08,.68);soft(4.18,.16,1.42,dresserWood,0,2.66,0,.05,.65);
+    for(const x of [-1.15,0,1.15])for(const y of [1.02,1.92]){soft(1.08,.72,.055,dresserWood,x,y,.69,.025,.72);const pull=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,.12,12),brass);pull.rotation.x=Math.PI/2;pull.position.set(x,y,.75);g.add(pull)}
     for(const x of [-1.75,1.75])for(const z of [-.5,.5]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.075,.06,.26,12),shadowWood);leg.position.set(x,.13,z);g.add(leg)}
    }
    else if(i.type==='TV + media console'){
-    const dark=mat('#181817',.22),brass=mat('#b99a6f',.35);
-    soft(4.6,.67,1.26,c,0,.78,.35,.065,.65);soft(4.75,.13,1.33,'#b68e66',0,1.18,.35,.04,.58);
+    const dark=mat('#181817',.22),consoleWood=timberMaterial(c,.7),brass=mat('#b99a6f',.35);
+    soft(4.6,.67,1.26,consoleWood,0,.78,.35,.065,.65);soft(4.75,.13,1.33,consoleWood,0,1.18,.35,.04,.58);
     for(const x of [-1.72,1.72])for(const z of [-.08,.76]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.045,.065,.18,10),brass);leg.position.set(x,.09,z);g.add(leg)}
     for(const x of [-1.5,-.5,.5,1.5]){soft(.85,.47,.035,'#b68e66',x,.8,1.0,.018,.7);const knob=new THREE.Mesh(new THREE.SphereGeometry(.035,10,8),brass);knob.position.set(x,.8,1.035);g.add(knob)}
     soft(3.5,1.62,.17,'#171819',0,2.23,-.22,.055,.22);soft(3.27,1.4,.025,'#252a2c',0,2.25,-.12,.018,.2);
