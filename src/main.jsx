@@ -9,7 +9,7 @@ import furnitureSheet from './furniture-catalog-v2.jpg';
 import furnitureAdditions from './furniture-additions.png';
 
 const catalog=[
- {type:'Bed',category:'Beds',price:899,color:'#b99a79',icon:BedDouble,size:[3.2,4.1,1.9]}, {type:'Window',category:'Windows',price:499,color:'#f8f5ed',icon:Frame,size:[3.8,.2,3.5]}, {type:'Sofa',category:'Sofas',price:1249,color:'#d8cfc0',icon:Sofa,size:[3.2,1.4,1.4]}, {type:'Desk',category:'Desks',price:429,color:'#b68a61',icon:Table2,size:[2.7,1.3,.9]}, {type:'Chair',category:'Chairs',price:249,color:'#8d6a50',icon:Armchair,size:[.9,.9,1.3]}, {type:'Side table',category:'Tables',price:179,color:'#bd9876',icon:Table2,size:[.9,.9,.7]}, {type:'Woven rug',category:'Rugs',price:329,color:'#c7a980',icon:Grid2X2,size:[4.8,3.4,.1]}, {type:'Floor lamp',category:'Lamps',price:189,color:'#c7a66f',icon:Lamp,size:[.9,.9,4]}, {type:'Arched mirror',category:'Mirrors',price:299,color:'#d6d0c7',icon:Frame,size:[1.5,.2,2.5]}, {type:'Olive tree',category:'Plants',price:159,color:'#607a59',icon:Flower2,size:[1.8,1.8,3.5]}, {type:'Abstract art',category:'Wall Art',price:220,color:'#c68f6c',icon:Frame,size:[1.8,.1,1.3]}, {type:'Ceramic vase',category:'Decorations',price:89,color:'#d6b9a1',icon:Sparkles,size:[.5,.5,.7]}, {type:'Dresser',category:'Tables',price:799,color:'#9b714e',icon:Table2,size:[4.3,1.6,3.1]}, {type:'TV + media console',category:'Decorations',price:1099,color:'#9b714e',icon:Box,size:[5.2,1.6,3.25]}
+ {type:'Bed',category:'Beds',price:899,color:'#b99a79',icon:BedDouble,size:[3.2,4.1,1.9]}, {type:'Window',category:'Windows',price:499,color:'#f8f5ed',icon:Frame,size:[3.8,.2,3.5]}, {type:'Sofa',category:'Sofas',price:1249,color:'#d8cfc0',icon:Sofa,size:[3.2,1.4,1.4]}, {type:'Desk',category:'Desks',price:429,color:'#b68a61',icon:Table2,size:[2.7,1.3,.9]}, {type:'Chair',category:'Chairs',price:249,color:'#8d6a50',icon:Armchair,size:[.9,.9,1.3]}, {type:'Side table',category:'Tables',price:179,color:'#bd9876',icon:Table2,size:[.9,.9,.7]}, {type:'Woven rug',category:'Rugs',price:329,color:'#c7a980',icon:Grid2X2,size:[4.8,3.4,.1]}, {type:'Floor lamp',category:'Lamps',price:189,color:'#c7a66f',icon:Lamp,size:[.9,.9,4]}, {type:'Arched mirror',category:'Mirrors',price:299,color:'#d6d0c7',icon:Frame,size:[1.5,.2,2.5]}, {type:'Olive tree',category:'Plants',price:159,color:'#607a59',icon:Flower2,size:[1.8,1.8,3.5]}, {type:'Abstract art',category:'Wall Art',price:220,color:'#c68f6c',icon:Frame,size:[1.8,.1,1.3]}, {type:'Ceramic vase',category:'Decorations',price:89,color:'#d6b9a1',icon:Sparkles,size:[.5,.5,1.3]}, {type:'Dresser',category:'Tables',price:799,color:'#9b714e',icon:Table2,size:[4.3,1.6,3.1]}, {type:'TV + media console',category:'Decorations',price:1099,color:'#9b714e',icon:Box,size:[5.2,1.6,3.25]}
 ];
 const styles=[
  {name:'Modern Minimalist',wall:'#eee9df',floor:'#b69070',accent:'#b99a79'}, {name:'Scandinavian',wall:'#f1efe8',floor:'#c1a17f',accent:'#cbb69d'}, {name:'Boho',wall:'#e9dfd1',floor:'#a67c58',accent:'#bc8662'}, {name:'Modern Luxury',wall:'#ddd5ca',floor:'#805d46',accent:'#c6a26e'}, {name:'Pink Aesthetic',wall:'#f2e1df',floor:'#c49e88',accent:'#d9a9a8'}, {name:'Coastal',wall:'#e8efed',floor:'#c6aa86',accent:'#8da9a5'}, {name:'Japandi',wall:'#e8e4db',floor:'#9f8265',accent:'#a98d6f'}
@@ -54,20 +54,18 @@ function RoomCanvas({design,onSelect,orbitTick}){
     box(g,.09,3.1,.17,'#e8e2d8',0,1.75,.15);box(g,3.55,.09,.17,'#e8e2d8',0,1.75,.15);
    }
    else if(i.type==='Bed'){
-    const walnut=mat('#795b43',.64),oak=mat('#a27d59',.7),linen=mat('#f5f1e9',.98),duvet=mat('#e7dfd3',.98),throwMat=mat('#c4ad91',.98),pillow=mat('#fffdf9',1),stitch=mat('#d4c8b8',1);
+    const walnut=mat('#936c4c',.64),oak=mat('#aa825b',.7),linen=mat('#f7f4ee',.98),duvet=mat('#eee9e0',.99),pillow=mat('#fffdf9',1);
     const timber=(w,h,d,m,x,y,z)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;g.add(o);return o};
     // Warm oak platform, rounded upholstered mattress and soft layered bedding.
-    soft(3.06,.28,3.9,'#795b43',0,.3,0,.045,.68);
+    soft(3.06,.28,3.9,'#936c4c',0,.3,0,.045,.68);
     for(const x of [-1.3,1.3])for(const z of [-1.68,1.68]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.07,.095,.29,12),walnut);leg.position.set(x,.15,z);g.add(leg)}
     soft(2.98,.27,3.6,'#f2eee7',0,.57,0,.1,.97);
-    soft(2.92,.2,2.55,'#e7dfd3',0,.78,.55,.1,.99);
-    soft(2.94,.075,.28,'#f6f2ea',0,.89,-.56,.035,1);
-    soft(2.9,.095,.58,'#c4ad91',0,.9,1.28,.035,.98);
-    for(const x of [-1.36,1.36])timber(.012,.008,2.1,stitch,x,.885,.61);
-    for(const x of [-.76,.76])soft(1.08,.24,.72,'#fffdf9',x,.98,-1.25,.105,1);
+    // One generous white duvet with a soft draped edge mirrors the simple catalog bedding.
+    soft(3.08,.28,3.24,'#eee9e0',0,.72,.28,.11,.99);
+    for(const x of [-.76,.76])soft(1.08,.3,.76,'#fffdf9',x,.98,-1.25,.12,1);
     // A broad oak headboard with a recessed center panel and fine vertical grain lines.
-    timber(3.22,1.08,.17,walnut,0,.9,-1.96);timber(2.93,.79,.045,oak,0,.91,-1.855);
-    for(const x of [-.98,0,.98])timber(.022,.72,.018,walnut,x,.91,-1.824);
+    timber(3.22,1.08,.17,oak,0,.9,-1.96);timber(2.93,.79,.045,walnut,0,.91,-1.855);
+    for(const x of [-.98,0,.98])timber(.022,.72,.018,oak,x,.91,-1.824);
    }
    else if(i.type==='Sofa'){
     const fabric=mat(c,.96),seam=mat('#c9bba8',1),legs=mat('#87694d',.62);
@@ -155,12 +153,11 @@ function RoomCanvas({design,onSelect,orbitTick}){
     const soil=new THREE.Mesh(new THREE.CylinderGeometry(.245,.245,.025,32),mat('#473a2c',1));soil.position.y=.56;g.add(soil);
    }
    else if(i.type==='Abstract art'){
-    const frame=mat('#9a7554',.62),paper=mat('#eee7dc',.98),taupe=mat('#c1a98d',.99),sand=mat('#d8cbbb',1),clay=mat('#aa8e70',1);
     soft(1.78,1.3,.09,'#9a7554',0,1.72,0,.025,.65);soft(1.64,1.16,.035,'#eee7dc',0,1.72,.06,.008,.98);
-    // Quiet layered plaster shapes echo the neutral abstract print in the catalog photo.
-    const shape1=new THREE.Mesh(new THREE.CircleGeometry(.42,40),new THREE.MeshStandardMaterial({color:'#c1a98d',roughness:1}));shape1.scale.set(1.05,1.28,1);shape1.position.set(-.28,1.76,.09);g.add(shape1);
-    const shape2=new THREE.Mesh(new THREE.CircleGeometry(.32,40),new THREE.MeshStandardMaterial({color:'#d8cbbb',roughness:1}));shape2.scale.set(1.1,.72,1);shape2.position.set(.36,1.91,.095);g.add(shape2);
-    soft(.68,.26,.012,'#aa8e70',.34,1.47,.1,.06,1);
+    // Flat, softly edged color blocks match the quiet rectangular composition in the product photo.
+    soft(.5,.84,.012,'#d8cbbb',-.42,1.82,.087,.005,1);
+    soft(.78,.58,.013,'#b7a58e',.31,1.54,.088,.005,1);
+    soft(.44,.37,.014,'#c8b9a4',.42,1.95,.09,.005,1);
    }
    else if(i.type==='Arched mirror'){
     const arch=(w,h)=>{const shape=new THREE.Shape();shape.moveTo(-w/2,0);shape.lineTo(-w/2,h*.68);shape.quadraticCurveTo(-w/2,h,0,h);shape.quadraticCurveTo(w/2,h,w/2,h*.68);shape.lineTo(w/2,0);shape.closePath();return shape};
@@ -171,8 +168,14 @@ function RoomCanvas({design,onSelect,orbitTick}){
    }
    else{
     const profile=[new THREE.Vector2(.12,0),new THREE.Vector2(.22,.04),new THREE.Vector2(.28,.16),new THREE.Vector2(.31,.34),new THREE.Vector2(.28,.47),new THREE.Vector2(.19,.55),new THREE.Vector2(.15,.63),new THREE.Vector2(.12,.68),new THREE.Vector2(.19,.7)];
-    const glaze=new THREE.MeshPhysicalMaterial({color:c,roughness:.28,metalness:.02,clearcoat:.72,clearcoatRoughness:.18});const vase=new THREE.Mesh(new THREE.LatheGeometry(profile,48),glaze);vase.position.y=.08;g.add(vase);
+    const glaze=new THREE.MeshPhysicalMaterial({color:'#d7c6af',roughness:.28,metalness:.02,clearcoat:.72,clearcoatRoughness:.18});const vase=new THREE.Mesh(new THREE.LatheGeometry(profile,48),glaze);vase.position.y=.08;g.add(vase);
     const inside=new THREE.Mesh(new THREE.CylinderGeometry(.105,.13,.07,32),mat('#8c765f',.96));inside.position.y=.72;g.add(inside);
+    // Fine woody stems and small leaves complete the arrangement shown in the catalog tile.
+    const stemMat=mat('#83704f',.92),leafMat=mat('#969575',.98);
+    for(const side of [-1,1]){
+     const stem=new THREE.Mesh(new THREE.CylinderGeometry(.008,.018,.58,8),stemMat);stem.position.set(side*.095,1.015,0);stem.rotation.z=-side*.18;g.add(stem);
+     for(let n=0;n<5;n++){const y=.82+n*.085,x=side*(.13+n*.025),leaf=new THREE.Mesh(new THREE.SphereGeometry(1,8,6),leafMat);leaf.scale.set(.035,.105,.025);leaf.position.set(x,y,n%2?.025:-.025);leaf.rotation.z=-side*.52;g.add(leaf)}
+    }
    }
    g.traverse(o=>{if(o.isMesh){o.castShadow=true;o.receiveShadow=true}});s.scene.add(g);meshes.current.set(i.id,g)
   })
