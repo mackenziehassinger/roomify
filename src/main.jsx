@@ -54,15 +54,23 @@ function RoomCanvas({design,onSelect,orbitTick}){
     box(g,.09,3.1,.17,'#e8e2d8',0,1.75,.15);box(g,3.55,.09,.17,'#e8e2d8',0,1.75,.15);
    }
    else if(i.type==='Bed'){
-    const walnut=mat('#936c4c',.64),oak=mat('#aa825b',.7),linen=mat('#f7f4ee',.98),duvet=mat('#eee9e0',.99),pillow=mat('#fffdf9',1);
+   const walnut=mat('#936c4c',.64),oak=mat('#aa825b',.7),linen=mat('#f7f4ee',.98),duvet=mat('#eee9e0',.99),pillow=mat('#fffdf9',1);
+    // Fine woven fibers give the quilt and pillows a natural linen finish in the render.
+    const fabricCanvas=document.createElement('canvas');fabricCanvas.width=fabricCanvas.height=256;const fabricCtx=fabricCanvas.getContext('2d');fabricCtx.fillStyle='#f1ede5';fabricCtx.fillRect(0,0,256,256);
+    for(let n=0;n<256;n+=4){fabricCtx.fillStyle=n%8?'rgba(255,255,255,.19)':'rgba(142,128,110,.08)';fabricCtx.fillRect(0,n,256,1);fabricCtx.fillStyle=n%8?'rgba(255,255,255,.14)':'rgba(142,128,110,.07)';fabricCtx.fillRect(n,0,1,256)}
+    const fabricTexture=new THREE.CanvasTexture(fabricCanvas);fabricTexture.colorSpace=THREE.SRGBColorSpace;fabricTexture.wrapS=fabricTexture.wrapT=THREE.RepeatWrapping;fabricTexture.repeat.set(2,2);
+    const fabricMaterial=new THREE.MeshStandardMaterial({color:'#fff',map:fabricTexture,roughness:.99,bumpMap:fabricTexture,bumpScale:.012});
+    const cloth=(w,h,d,x,y,z,r=.08)=>{const mesh=new THREE.Mesh(new RoundedBoxGeometry(w,h,d,5,r),fabricMaterial);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);return mesh};
     const timber=(w,h,d,m,x,y,z)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;g.add(o);return o};
     // Warm oak platform, rounded upholstered mattress and soft layered bedding.
     soft(3.06,.28,3.9,'#936c4c',0,.3,0,.045,.68);
     for(const x of [-1.3,1.3])for(const z of [-1.68,1.68]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.07,.095,.29,12),walnut);leg.position.set(x,.15,z);g.add(leg)}
     soft(2.98,.27,3.6,'#f2eee7',0,.57,0,.1,.97);
     // One generous white duvet with a soft draped edge mirrors the simple catalog bedding.
-    soft(3.08,.28,3.24,'#eee9e0',0,.72,.28,.11,.99);
-    for(const x of [-.76,.76])soft(1.08,.3,.76,'#fffdf9',x,.98,-1.25,.12,1);
+    cloth(3.08,.28,3.24,0,.72,.28,.11);
+    cloth(.14,.34,3.05,-1.48,.57,.28,.06);cloth(.14,.34,3.05,1.48,.57,.28,.06);
+    cloth(3.02,.28,.14,0,.59,1.83,.055);
+    for(const x of [-.76,.76])cloth(1.08,.3,.76,x,.98,-1.25,.12);
     // A broad oak headboard with a recessed center panel and fine vertical grain lines.
     timber(3.22,1.08,.17,oak,0,.9,-1.96);timber(2.93,.79,.045,walnut,0,.91,-1.855);
     for(const x of [-.98,0,.98])timber(.022,.72,.018,oak,x,.91,-1.824);
