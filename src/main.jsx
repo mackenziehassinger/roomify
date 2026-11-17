@@ -68,7 +68,7 @@ function RoomCanvas({design,onSelect,orbitTick}){
     const cloth=(w,h,d,x,y,z,r=.08)=>{const mesh=new THREE.Mesh(new RoundedBoxGeometry(w,h,d,5,r),fabricMaterial);mesh.position.set(x,y,z);mesh.castShadow=true;mesh.receiveShadow=true;g.add(mesh);return mesh};
     const timber=(w,h,d,m,x,y,z)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;g.add(o);return o};
     // Warm oak platform, rounded upholstered mattress and soft layered bedding.
-    soft(3.06,.28,3.9,'#936c4c',0,.3,0,.045,.68);
+    soft(3.06,.28,3.9,oak,0,.3,0,.045,.68);
     for(const x of [-1.3,1.3])for(const z of [-1.68,1.68]){const leg=new THREE.Mesh(new THREE.CylinderGeometry(.07,.095,.29,12),walnut);leg.position.set(x,.15,z);g.add(leg)}
     soft(2.98,.27,3.6,'#f2eee7',0,.57,0,.1,.97);
     // One generous white duvet with a soft draped edge mirrors the simple catalog bedding.
