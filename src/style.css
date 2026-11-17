@@ -14,3 +14,5 @@
 .mount-controls label{margin:0;padding:5px 0}
 .mount-controls label+label{border-top:1px solid #ece7de}
 .mount-controls small{font-size:8px;color:#a39a8c;margin-left:-6px}
+
+.catalog-photo.window-product-photo{background:linear-gradient(135deg,#eee8dd,#d9d3c9)}.window-product-photo:before{content:'';position:absolute;left:22%;top:9%;width:56%;height:81%;border:5px solid #faf8f3;border-radius:22px 22px 2px 2px;background:linear-gradient(135deg,#d7e7e7 0%,#b8d1d5 45%,#e5eeeb 46%,#c8dcdd 100%);box-shadow:0 5px 10px #574a382b}.window-product-photo span{position:absolute;inset:14% 27% 16%;z-index:1}.window-product-photo span:before,.window-product-photo span:after{content:'';position:absolute;background:#f7f4ee;box-shadow:0 0 1px #927f69}.window-product-photo span:before{left:50%;top:0;width:3px;height:100%}.window-product-photo span:after{left:0;top:50%;height:3px;width:100%}
